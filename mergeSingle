@@ -1,0 +1,17 @@
+#!/bin/bash
+#mergeSingle: merge EDRs and RDRs for single orbit
+#July 19 2021 -- Damian Hackett
+
+pathtoedr=$1
+pathtordr=$2
+fileNum=$3
+missionPhase=$4
+edrname="EDR${fileNum}.csv"
+rdrname="RDR_${fileNum}.csv"
+  
+edr2hkEng $pathtoedr h > /att/nobackup/dhackett/$edrname
+rdr2utcEng $pathtordr h > /att/nobackup/dhackett/$rdrname
+paste -d "," /att/nobackup/dhackett/$edrname  /att/nobackup/dhackett/$rdrname >> /att/nobackup/dhackett/$missionPhase"_"$fileNum.csv
+
+rm /att/nobackup/dhackett/$edrname
+rm /att/nobackup/dhackett/$rdrname

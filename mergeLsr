@@ -1,0 +1,39 @@
+#!/bin/bash
+#mergeLsr
+#July 19 2021 -- Damian Hackett
+
+declare -a source=("LRO_NO_03" "LRO_NO_04" "LRO_NO_05" "LRO_NO_06" "LRO_NO_07" "LRO_NO_08" "LRO_NO_09" "LRO_NO_10" "LRO_NO_11" "LRO_NO_12" "LRO_NO_13" "LRO_SM_01" "LRO_SM_02" "LRO_SM_03" "LRO_SM_04" "LRO_SM_05" "LRO_SM_06" "LRO_SM_07" "LRO_SM_08" "LRO_SM_09" "LRO_SM_10" "LRO_SM_11" "LRO_SM_12" "LRO_SM_13" "LRO_SM_14" "LRO_SM_15" "LRO_SM_16" "LRO_SM_17" "LRO_SM_18" "LRO_SM_19" "LRO_SM_20" "LRO_SM_21" "LRO_SM_22" "LRO_SM_23" "LRO_SM_24" "LRO_SM_25" "LRO_SM_26" "LRO_ES_01" "LRO_ES_02" "LRO_ES_03" "LRO_ES_04" "LRO_ES_05" "LRO_ES_06" "LRO_ES_07" "LRO_ES_08" "LRO_ES_09" "LRO_ES_10" "LRO_ES_11" "LRO_ES_12" "LRO_ES_13" "LRO_ES_14" "LRO_ES_15" "LRO_ES_16" "LRO_ES_17" "LRO_ES_18" "LRO_ES_19" "LRO_ES_20" "LRO_ES_21" "LRO_ES_22" "LRO_ES_23" "LRO_ES_24" "LRO_ES_25" "LRO_ES_26" "LRO_ES_27" "LRO_ES_28" "LRO_ES_29" "LRO_ES_30" "LRO_ES_31" "LRO_ES_32" "LRO_ES_33" "LRO_ES_34" "LRO_ES_35" "LRO_ES_36" "LRO_ES_37" "LRO_ES_38" "LRO_ES_39" "LRO_ES_40" "LRO_ES_41" "LRO_ES_42" "LRO_ES_43" "LRO_ES_44" "LRO_ES_45" "LRO_ES_46" "LRO_ES_47" "LRO_ES_48" "LRO_ES_49" "LRO_ES_50" "LRO_ES_51" "LRO_ES_52" "LRO_ES_53" "LRO_ES_54" "LRO_ES_55" "LRO_ES_56" "LRO_ES_57" "LRO_ES_58" "LRO_ES_59" "LRO_ES_60" "LRO_ES_61" "LRO_ES_62" "LRO_ES_63" "LRO_ES_64" "LRO_ES_65" "LRO_ES_66" "LRO_ES_67" "LRO_ES_68" "LRO_ES_69" "LRO_ES_70" "LRO_ES_71" "LRO_ES_72" "LRO_ES_73" "LRO_ES_74" "LRO_ES_75" "LRO_ES_76" "LRO_ES_77" "LRO_ES_78" "LRO_ES_79" "LRO_ES_80" "LRO_ES_81" "LRO_ES_82" "LRO_ES_83" "LRO_ES_84" "LRO_ES_85" "LRO_ES_86" "LRO_ES_87" "LRO_ES_88" "LRO_ES_89" "LRO_ES_90" "LRO_ES_91" "LRO_ES_92" "LRO_ES_93" "LRO_ES_94" "LRO_ES_95" "LRO_ES_96" "LRO_ES_97" "LRO_ES_98" "LRO_ES_99" "LRO_ES_100" "LRO_ES_101")
+prefix='LOLARDR_'
+
+
+for phase in ${source[@]}; do
+	EDRPATH=/att/projrepo/PGDA/LOLA/data/LOLA_EDR/$phase
+	RDRPATH=/att/projrepo/PGDA/LOLA/data/LOLA_RDR/$phase
+	header=true
+	for edrname in $EDRPATH/*.DAT; do
+		_edrname=$(basename $edrname); _edrname=${_edrname%.*}
+		echo $edrname
+		rdrname="${_edrname:7}"
+		_rdrname=$prefix$rdrname
+		rdrname=$RDRPATH/$_rdrname.DAT
+		echo $rdrname	
+
+		if $header; then
+			edr2hkLsr $edrname h > /att/nobackup/dhackett/$_edrname.csv
+			rdr2utcLsr $rdrname h > /att/nobackup/dhackett/$_rdrname.csv
+
+			paste -d ","  /att/nobackup/dhackett/$_edrname.csv  /att/nobackup/dhackett/$_rdrname.csv >> /att/nobackup/dhackett/LOLAComplete/$phase.csv
+       			rm  /att/nobackup/dhackett/$_edrname.csv
+        		rm /att/nobackup/dhackett/$_rdrname.csv
+			header=false
+			continue
+		fi
+
+		edr2hkLsr $edrname > /att/nobackup/dhackett/$_edrname.csv
+		rdr2utcLsr $rdrname > /att/nobackup/dhackett/$_rdrname.csv
+
+		paste -d  "," /att/nobackup/dhackett/$_edrname.csv  /att/nobackup/dhackett/$_rdrname.csv >> /att/nobackup/dhackett/LOLAComplete/$phase.csv
+		rm  /att/nobackup/dhackett/$_edrname.csv
+		rm /att/nobackup/dhackett/$_rdrname.csv
+	done
+done

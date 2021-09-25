@@ -1,0 +1,39 @@
+#!/bin/bash
+#mergeEng
+#July 19 2021 -- Damian Hackett
+
+declare -a source=("LRO_ES_102" "LRO_ES_103")
+prefix='LOLARDR_'
+
+
+for phase in ${source[@]}; do
+	EDRPATH=/att/projrepo/PGDA/LOLA/data/LOLA_EDR/$phase
+	RDRPATH=/att/projrepo/PGDA/LOLA/data/LOLA_RDR/$phase
+	header=true
+	for edrname in $EDRPATH/*.DAT; do
+		_edrname=$(basename $edrname); _edrname=${_edrname%.*}
+		echo $edrname
+		rdrname="${_edrname:7}"
+		_rdrname=$prefix$rdrname
+		rdrname=$RDRPATH/$_rdrname.DAT
+		echo $rdrname	
+
+		if $header; then
+			edr2hkEng $edrname h > /att/nobackup/dhackett/$_edrname.csv
+			rdr2utcEng $rdrname h > /att/nobackup/dhackett/$_rdrname.csv
+
+			paste -d ","  /att/nobackup/dhackett/$_edrname.csv  /att/nobackup/dhackett/$_rdrname.csv >> /att/nobackup/dhackett/LOLAEng/$phase.csv
+       			rm  /att/nobackup/dhackett/$_edrname.csv
+        		rm /att/nobackup/dhackett/$_rdrname.csv
+			header=false
+			continue
+		fi
+
+		edr2hkEng $edrname > /att/nobackup/dhackett/$_edrname.csv
+		rdr2utcEng $rdrname > /att/nobackup/dhackett/$_rdrname.csv
+
+		paste -d  "," /att/nobackup/dhackett/$_edrname.csv  /att/nobackup/dhackett/$_rdrname.csv >> /att/nobackup/dhackett/LOLAEng/$phase.csv
+		rm  /att/nobackup/dhackett/$_edrname.csv
+		rm /att/nobackup/dhackett/$_rdrname.csv
+	done
+done
